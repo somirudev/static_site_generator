@@ -1,6 +1,5 @@
-from re import split
 import unittest
-from split_nodes_delimiter import split_nodes_delimiter
+from split_nodes import split_nodes_delimiter
 from textnode import TextNode, TextType
 
 
@@ -8,7 +7,7 @@ class TextSplitNodesDelimiter(unittest.TestCase):
     def test_simplecode(self):
         node = TextNode("This is text with a `code block` word", TextType.TEXT)
         new_nodes = split_nodes_delimiter([node], "`", TextType.CODE)
-        self.assertEqual(
+        self.assertListEqual(
             new_nodes,
             [
                 TextNode("This is text with a ", TextType.TEXT),
@@ -20,7 +19,7 @@ class TextSplitNodesDelimiter(unittest.TestCase):
     def test_bold(self):
         node = TextNode("This text **contains** a few **bold** words", TextType.TEXT)
         new_nodes = split_nodes_delimiter([node], "**", TextType.BOLD)
-        self.assertEqual(
+        self.assertListEqual(
             new_nodes,
             [
                 TextNode("This text ", TextType.TEXT),
@@ -34,7 +33,7 @@ class TextSplitNodesDelimiter(unittest.TestCase):
     def test_start_with_delimiter(self):
         node = TextNode("`code block` at the start", TextType.TEXT)
         new_nodes = split_nodes_delimiter([node], "`", TextType.CODE)
-        self.assertEqual(
+        self.assertListEqual(
             new_nodes,
             [
                 TextNode("code block", TextType.CODE),
@@ -45,7 +44,7 @@ class TextSplitNodesDelimiter(unittest.TestCase):
     def test_end_with_delimiter(self):
         node = TextNode("This text ends with a bold **word**", TextType.TEXT)
         new_nodes = split_nodes_delimiter([node], "**", TextType.BOLD)
-        self.assertEqual(
+        self.assertListEqual(
             new_nodes,
             [
                 TextNode("This text ends with a bold ", TextType.TEXT),
@@ -73,7 +72,7 @@ class TextSplitNodesDelimiter(unittest.TestCase):
     def test_not_a_text_node2(self):
         node = TextNode("This bold text contains _italic_ words", TextType.BOLD)
         new_nodes = split_nodes_delimiter([node], "_", TextType.ITALIC)
-        self.assertEqual(
+        self.assertListEqual(
             new_nodes,
             [TextNode("This bold text contains _italic_ words", TextType.BOLD)],
         )
@@ -83,7 +82,7 @@ class TextSplitNodesDelimiter(unittest.TestCase):
         node2 = TextNode("This text has a **bold** word in the middle", TextType.TEXT)
         node3 = TextNode("This text ends with a bold **word**", TextType.TEXT)
         new_nodes = split_nodes_delimiter([node, node2, node3], "**", TextType.BOLD)
-        self.assertEqual(
+        self.assertListEqual(
             new_nodes,
             [
                 TextNode("bold words", TextType.BOLD),
@@ -99,13 +98,29 @@ class TextSplitNodesDelimiter(unittest.TestCase):
     def test_double_delimiters(self):
         node = TextNode("This text has **weird****bold****syntax**", TextType.TEXT)
         new_nodes = split_nodes_delimiter([node], "**", TextType.BOLD)
-        self.assertEqual(
+        self.assertListEqual(
             new_nodes,
             [
                 TextNode("This text has ", TextType.TEXT),
                 TextNode("weird", TextType.BOLD),
                 TextNode("bold", TextType.BOLD),
                 TextNode("syntax", TextType.BOLD),
+            ],
+        )
+
+    def test_double_different_delimiters(self):
+        node = TextNode(
+            "This text contains _both italic_ and **bold text**", TextType.TEXT
+        )
+        intermediate_nodes = split_nodes_delimiter([node], "_", TextType.ITALIC)
+        new_nodes = split_nodes_delimiter(intermediate_nodes, "**", TextType.BOLD)
+        self.assertListEqual(
+            new_nodes,
+            [
+                TextNode("This text contains ", TextType.TEXT),
+                TextNode("both italic", TextType.ITALIC),
+                TextNode(" and ", TextType.TEXT),
+                TextNode("bold text", TextType.BOLD),
             ],
         )
 
