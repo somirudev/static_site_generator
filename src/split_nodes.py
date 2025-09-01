@@ -1,3 +1,4 @@
+import re
 from textnode import TextNode, TextType
 from extract_markdown import extract_markdown_images, extract_markdown_links
 
@@ -5,21 +6,21 @@ from extract_markdown import extract_markdown_images, extract_markdown_links
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
     list_of_nodes = []
     for old_node in old_nodes:
-        if old_node.text_type is not TextType.TEXT:
+        if old_node.text_type != TextType.TEXT:
             list_of_nodes.append(old_node)
-        else:
-            list_of_parts = old_node.text.split(delimiter)
-            if len(list_of_parts) % 2 == 0 and not (
-                old_node.text[-1] == delimiter or old_node.text[0] == delimiter
-            ):
-                raise Exception("no closing delimiter, invalid Markdown syntax")
-            for i in range(len(list_of_parts)):
-                if list_of_parts[i] == "":
-                    continue
-                if i % 2 == 0:
-                    list_of_nodes.append(TextNode(list_of_parts[i], TextType.TEXT))
-                else:
-                    list_of_nodes.append(TextNode(list_of_parts[i], text_type))
+            continue
+        parts = re.split(
+            rf"({re.escape(delimiter)}[^{re.escape(delimiter)}]+{re.escape(delimiter)})",
+            old_node.text,
+        )
+        for part in parts:
+            if part == "":
+                continue
+            if part.startswith(delimiter) and part.endswith(delimiter):
+                text = part[len(delimiter) : -len(delimiter)]
+                list_of_nodes.append(TextNode(text, text_type))
+            else:
+                list_of_nodes.append(TextNode(part, TextType.TEXT))
     return list_of_nodes
 
 

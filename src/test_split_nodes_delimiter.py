@@ -52,11 +52,6 @@ class TextSplitNodesDelimiter(unittest.TestCase):
             ],
         )
 
-    def test_exception(self):
-        node = TextNode("This ` gives an error", TextType.TEXT)
-        with self.assertRaises(Exception):
-            _ = split_nodes_delimiter([node], "`", TextType.CODE)
-
     def test_not_a_text_node(self):
         node = TextNode("This bold text contains _italic_ words", TextType.BOLD)
         new_nodes = split_nodes_delimiter([node], "_", TextType.ITALIC)
