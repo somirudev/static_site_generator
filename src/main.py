@@ -13,6 +13,24 @@ logging.basicConfig(
 def main():
     copy_directory("static", "public")
     generate_page("content/index.md", "template.html", "public/index.html")
+    generate_page(
+        "content/blog/glorfindel/index.md",
+        "template.html",
+        "public/blog/glorfindel/index.html",
+    )
+    generate_page(
+        "content/blog/tom/index.md", "template.html", "public/blog/tom/index.html"
+    )
+    generate_page(
+        "content/blog/majesty/index.md",
+        "template.html",
+        "public/blog/majesty/index.html",
+    )
+    generate_page(
+        "content/contact/index.md",
+        "template.html",
+        "public/contact/index.html",
+    )
 
 
 def copy_directory(source, destination):
@@ -44,9 +62,13 @@ def generate_page(from_path, template_path, dest_path):
     title = extract_title(markdown)
     page_with_title = template.replace("{{ Title }}", title)
     page_with_html = page_with_title.replace("{{ Content }}", html)
-    dest_dir = os.path.dirname(dest_path)
-    if not os.path.exists(dest_dir):
-        os.mkdir(dest_dir)
+    try:
+        if not os.path.exists(os.path.dirname(dest_path)):
+            os.makedirs(os.path.dirname(dest_path))
+    except OSError as err:
+        if err.errno != 17:
+            raise err
+        pass
     with open(dest_path, "w") as f:
         f.write(page_with_html)
 
