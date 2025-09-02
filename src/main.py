@@ -12,25 +12,7 @@ logging.basicConfig(
 
 def main():
     copy_directory("static", "public")
-    generate_page("content/index.md", "template.html", "public/index.html")
-    generate_page(
-        "content/blog/glorfindel/index.md",
-        "template.html",
-        "public/blog/glorfindel/index.html",
-    )
-    generate_page(
-        "content/blog/tom/index.md", "template.html", "public/blog/tom/index.html"
-    )
-    generate_page(
-        "content/blog/majesty/index.md",
-        "template.html",
-        "public/blog/majesty/index.html",
-    )
-    generate_page(
-        "content/contact/index.md",
-        "template.html",
-        "public/contact/index.html",
-    )
+    generate_pages_recursive("content", "template.html", "public")
 
 
 def copy_directory(source, destination):
@@ -51,8 +33,29 @@ def copy_directory(source, destination):
             copy_directory(source_filepath, destination_filepath)
 
 
+def generate_pages_recursive(source, template_path, destination):
+    if not os.path.exists(destination):
+        os.mkdir(destination)
+    source_directory_files = os.listdir(source)
+    for file in source_directory_files:
+        source_filepath = os.path.join(source, file)
+        destination_filepath = os.path.join(destination, file)
+        if os.path.isfile(source_filepath):
+            generate_page(
+                source_filepath, template_path, destination_filepath[:-2] + "html"
+            )
+        else:
+            logger.info(f"making directory: {destination_filepath}")
+            os.mkdir(destination_filepath)
+            generate_pages_recursive(
+                source_filepath, template_path, destination_filepath
+            )
+
+
 def generate_page(from_path, template_path, dest_path):
-    print(f"Generating page from {from_path} to {dest_path} using {template_path}")
+    logger.info(
+        f"Generating page from {from_path} to {dest_path} using {template_path}"
+    )
     with open(from_path, "r") as f:
         markdown = f.read()
     with open(template_path, "r") as f:
