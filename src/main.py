@@ -12,8 +12,12 @@ logging.basicConfig(
 
 
 def main():
-    if len(sys.argv) > 2:
-        basepath = sys.argv[2]
+    if os.getenv("GITHUB_ACTIONS"):
+        argument_loc = 2
+    else:
+        argument_loc = 1
+    if len(sys.argv) > argument_loc:
+        basepath = sys.argv[argument_loc]
     else:
         basepath = "/"
     copy_directory("static", "docs")
