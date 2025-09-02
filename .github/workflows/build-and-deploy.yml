@@ -13,15 +13,13 @@ jobs:
         uses: actions/checkout@v4
         with:
           lfs: true
+          persist-credentials: true
 
       - name: Set up permissions for build script
         run: chmod +x build.sh
 
       - name: Run build script
         run: ./build.sh "https://somirudev.github.io/static_site_generator/"
-
-      - name: List docs directory contents
-        run: ls -lR docs
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
