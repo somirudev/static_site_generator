@@ -12,7 +12,7 @@ logging.basicConfig(
 
 
 def main():
-    if os.getenv("GITHUB_ACTIONS"):
+    if os.getenv("GITHUB_ACTIONS") == "true":
         argument_loc = 2
     else:
         argument_loc = 1
