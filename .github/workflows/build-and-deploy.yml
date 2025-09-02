@@ -20,6 +20,9 @@ jobs:
       - name: Run build script
         run: ./build.sh
 
+      - name: List docs directory contents
+        run: ls -lR docs
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
