@@ -1,6 +1,8 @@
 import os
 import shutil
 import logging
+from markdown_to_html_node import markdown_to_html_node
+from extract_title import extract_title
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
@@ -10,6 +12,7 @@ logging.basicConfig(
 
 def main():
     copy_directory("static", "public")
+    generate_page("content/index.md", "template.html", "public/index.html")
 
 
 def copy_directory(source, destination):
@@ -28,6 +31,24 @@ def copy_directory(source, destination):
             logger.info(f"making directory: {destination_filepath}")
             os.mkdir(destination_filepath)
             copy_directory(source_filepath, destination_filepath)
+
+
+def generate_page(from_path, template_path, dest_path):
+    print(f"Generating page from {from_path} to {dest_path} using {template_path}")
+    with open(from_path, "r") as f:
+        markdown = f.read()
+    with open(template_path, "r") as f:
+        template = f.read()
+    html_node = markdown_to_html_node(markdown)
+    html = html_node.to_html()
+    title = extract_title(markdown)
+    page_with_title = template.replace("{{ Title }}", title)
+    page_with_html = page_with_title.replace("{{ Content }}", html)
+    dest_dir = os.path.dirname(dest_path)
+    if not os.path.exists(dest_dir):
+        os.mkdir(dest_dir)
+    with open(dest_path, "w") as f:
+        f.write(page_with_html)
 
 
 if __name__ == "__main__":
