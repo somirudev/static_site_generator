@@ -12,8 +12,8 @@ logging.basicConfig(
 
 
 def main():
-    if len(sys.argv) > 0:
-        basepath = sys.argv[0]
+    if len(sys.argv) > 1:
+        basepath = sys.argv[1]
     else:
         basepath = "/"
     copy_directory("static", "docs")
